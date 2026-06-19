@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRIGONE — Suivi OMR · 4° RIISC</title>
+<link rel="icon" type="image/png" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="APP">
+<header class="HDR">
+  <div class="HDR-BRAND">
+    <div class="LOGO-WRAP">
+      <img src="icon-192.png" alt="TRIGONE" class="LOGO-TRIGONE">
+    </div>
+    <div>
+      <p class="HDR-APP">Suivi OMR — Bureau</p>
+      <h1>4° RIISC</h1>
+      <p class="HDR-SUB">Saisie manuelle · plusieurs personnes par mission · recherche</p>
+      <span id="MODE-BADGE" class="MODE-BADGE hidden"></span>
+    </div>
+  </div>
+  <div id="SYNTH" class="SYNTH-HDR"></div>
+  <div class="HDR-R">
+    <button type="button" class="BTN BTN-SEC BTN-SML" id="BTN-QUIT-ACCESS" title="Verrouiller l'application">Verrouiller</button>
+    <button type="button" class="BTN BTN-SEC" id="BTN-AJUST">Compléments CRH</button>
+    <div class="HDR-CRH">
+      <button type="button" class="BTN BTN-PRI" id="BTN-CRH">CRH PDF</button>
+      <button type="button" class="BTN BTN-SEC" id="BTN-CRH-XLS">CRH EXCEL</button>
+    </div>
+  </div>
+</header>
+
+<section class="CARD">
+  <div class="TOOLBAR">
+    <input type="search" id="SEARCH" class="SEARCH" placeholder="Rechercher par nom, lieu, date, N° OMR, code imputation…">
+    <button type="button" class="BTN BTN-PRI" id="BTN-AJOUTER">+ Ajouter une mission</button>
+  </div>
+  <p class="LEGENDE">
+    <span class="LEG-INT">■ Budget 4° RIISC</span> FDYDDR4FCT · FDYDDR4FRM
+    <span class="LEG-EXT">■ Code extérieur</span> fond jaune · texte orange
+    <span class="LEG-ABT">■ ABT</span> prise en charge administration (gratuit) — Héb., SNCF, Bat., Av., Div.
+    <span class="LEG-RETOUR">■ Retour OM</span> échéance = fin mission + 30 j — jaune J-10→J-6 · orange J-5→J-3 · rouge J-2→J-0 · violet dépassé
+  </p>
+  <div class="TABLE-W"><div id="LISTE" class="LISTE"></div></div>
+  <p id="VIDE" class="VIDE">Aucune ligne — cliquez sur « Ajouter une mission ».</p>
+</section>
+</div>
+
+<div id="MODAL-AJOUT" class="MODAL hidden">
+  <div class="MODAL-BOX">
+    <div class="MODAL-HDR">
+      <h2 id="MODAL-TITRE">Nouvelle mission</h2>
+      <button type="button" class="MODAL-X" id="MODAL-FERMER">×</button>
+    </div>
+    <form id="FORM-AJOUT" class="MODAL-BODY">
+      <h3 class="FORM-SUB">Mission</h3>
+      <div class="FORM-STACK">
+        <label>N° OMR<input type="text" name="numeroOm" required placeholder="ex. 0001"></label>
+        <label>Lieu<input type="text" name="lieu"></label>
+        <label>Objet de la mission<input type="text" name="objet"></label>
+        <div class="FORM-ROW2">
+          <label>Date début<input type="text" name="dateDebut" placeholder="jj/mm/aaaa"></label>
+          <label>Date fin<input type="text" name="dateFin" placeholder="jj/mm/aaaa"></label>
+        </div>
+        <label>Code imputation
+          <input type="text" name="codeImputation" id="INP-CODE" placeholder="FDYDDR4FCT ou FDYDDR4FRM…" autocomplete="off">
+        </label>
+        <p id="CODE-HINT" class="CODE-HINT hidden"></p>
+      </div>
+
+      <div id="BLOCK-PERS-MULTI">
+        <h3 class="FORM-SUB">Missionnaires <span class="FORM-HINT">— une ligne par personne dans le tableau</span></h3>
+        <div id="LISTE-PERS" class="LISTE-PERS"></div>
+        <button type="button" class="BTN BTN-ADD-PERS" id="BTN-ADD-PERS">+ Ajouter une personne</button>
+      </div>
+
+      <div id="BLOCK-PERS-ONE" class="hidden">
+        <h3 class="FORM-SUB">Missionnaire</h3>
+        <div class="FORM-ROW2">
+          <label>Grade<input type="text" name="grade" placeholder="CCH"></label>
+          <label>Nom prénom<input type="text" name="nomPrenom"></label>
+        </div>
+      </div>
+
+      <h3 class="FORM-SUB">Montants (€) <span id="MONTANT-HINT" class="FORM-HINT">— montant ou ABT (violet) pour Héb., SNCF, Bat., Av., Div.</span></h3>
+      <div class="FORM-ROW2">
+        <label>Repas<input type="text" inputmode="decimal" name="repas" placeholder="0,00"></label>
+        <label>Hébergement<input type="text" inputmode="decimal" name="hebergement" placeholder="0,00"></label>
+        <label>SNCF<input type="text" inputmode="decimal" name="sncf" placeholder="0,00"></label>
+        <label>Transp. commun<input type="text" inputmode="decimal" name="transportCommun" placeholder="0,00"></label>
+        <label>Bateau<input type="text" inputmode="decimal" name="bateau" placeholder="0,00"></label>
+        <label>Avion<input type="text" inputmode="decimal" name="avion" placeholder="0,00"></label>
+        <label>Ind. kilométrique<input type="text" inputmode="decimal" name="indemniteKm" placeholder="0,00"></label>
+        <label>Divers<input type="text" inputmode="decimal" name="divers" placeholder="0,00"></label>
+      </div>
+      <div class="MODAL-ACT">
+        <button type="button" class="BTN BTN-SEC" id="MODAL-ANNULER">Annuler</button>
+        <button type="submit" class="BTN BTN-PRI" id="BTN-SUBMIT">Valider</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="MODAL-AJUST" class="MODAL hidden">
+  <div class="MODAL-BOX MODAL-BOX-L">
+    <div class="MODAL-HDR">
+      <h2>Compléments CRH — ancien tableau</h2>
+      <button type="button" class="MODAL-X" id="AJUST-FERMER">×</button>
+    </div>
+    <form id="FORM-AJUST" class="MODAL-BODY MODAL-BODY-SCROLL">
+      <p class="AJUST-HINT">Totaux de votre ancien tableau, <strong>par code imputation</strong>. Additionnés aux lignes de l'application dans le PDF CRH.</p>
+
+      <div class="AJUST-BLOC AJUST-REG">
+        <h3 class="AJUST-TIT">Imputation régimentaire</h3>
+        <p class="AJUST-CODES">FDYDDR4FCT · FDYDDR4FRM</p>
+        <h4 class="FORM-SUB">OM supplémentaires</h4>
+        <div class="FORM-ROW2">
+          <label>Demande OMR<input type="number" min="0" step="1" name="reg_demandeOmr" placeholder="0"></label>
+          <label>OM validé<input type="number" min="0" step="1" name="reg_omValide" placeholder="0"></label>
+          <label>Retour OM<input type="number" min="0" step="1" name="reg_retourOm" placeholder="0"></label>
+          <label>OM liquider<input type="number" min="0" step="1" name="reg_omLiquider" placeholder="0"></label>
+        </div>
+        <h4 class="FORM-SUB">Montants (€)</h4>
+        <div class="FORM-ROW2">
+          <label>Repas<input type="text" inputmode="decimal" name="reg_repas" placeholder="0,00"></label>
+          <label>Hébergement<input type="text" inputmode="decimal" name="reg_hebergement" placeholder="0,00"></label>
+          <label>SNCF<input type="text" inputmode="decimal" name="reg_sncf" placeholder="0,00"></label>
+          <label>T.C.<input type="text" inputmode="decimal" name="reg_transportCommun" placeholder="0,00"></label>
+          <label>Bateau<input type="text" inputmode="decimal" name="reg_bateau" placeholder="0,00"></label>
+          <label>Avion<input type="text" inputmode="decimal" name="reg_avion" placeholder="0,00"></label>
+          <label>I.K.<input type="text" inputmode="decimal" name="reg_indemniteKm" placeholder="0,00"></label>
+          <label>Divers<input type="text" inputmode="decimal" name="reg_divers" placeholder="0,00"></label>
+        </div>
+      </div>
+
+      <div class="AJUST-BLOC AJUST-EXT">
+        <h3 class="AJUST-TIT">Imputation extérieure</h3>
+        <p class="AJUST-CODES">Tout code hors FDYDDR4FCT / FDYDDR4FRM</p>
+        <h4 class="FORM-SUB">OM supplémentaires</h4>
+        <div class="FORM-ROW2">
+          <label>Demande OMR<input type="number" min="0" step="1" name="ext_demandeOmr" placeholder="0"></label>
+          <label>OM validé<input type="number" min="0" step="1" name="ext_omValide" placeholder="0"></label>
+          <label>Retour OM<input type="number" min="0" step="1" name="ext_retourOm" placeholder="0"></label>
+          <label>OM liquider<input type="number" min="0" step="1" name="ext_omLiquider" placeholder="0"></label>
+        </div>
+        <h4 class="FORM-SUB">Montants (€)</h4>
+        <div class="FORM-ROW2">
+          <label>Repas<input type="text" inputmode="decimal" name="ext_repas" placeholder="0,00"></label>
+          <label>Hébergement<input type="text" inputmode="decimal" name="ext_hebergement" placeholder="0,00"></label>
+          <label>SNCF<input type="text" inputmode="decimal" name="ext_sncf" placeholder="0,00"></label>
+          <label>T.C.<input type="text" inputmode="decimal" name="ext_transportCommun" placeholder="0,00"></label>
+          <label>Bateau<input type="text" inputmode="decimal" name="ext_bateau" placeholder="0,00"></label>
+          <label>Avion<input type="text" inputmode="decimal" name="ext_avion" placeholder="0,00"></label>
+          <label>I.K.<input type="text" inputmode="decimal" name="ext_indemniteKm" placeholder="0,00"></label>
+          <label>Divers<input type="text" inputmode="decimal" name="ext_divers" placeholder="0,00"></label>
+        </div>
+      </div>
+
+      <div class="MODAL-ACT">
+        <button type="button" class="BTN BTN-SEC" id="AJUST-EFFACER">Tout effacer</button>
+        <button type="button" class="BTN BTN-SEC" id="AJUST-ANNULER">Annuler</button>
+        <button type="submit" class="BTN BTN-PRI">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<p id="MSG" class="MSG hidden"></p>
+
+<div id="MODAL-ACCESS" class="MODAL MODAL-ACCESS hidden">
+  <div class="MODAL-BOX MODAL-ACCESS-BOX">
+    <h2 class="ACCESS-TITRE">Accès application</h2>
+    <p class="ACCESS-TXT">Saisissez votre code pour accéder au suivi OMR.</p>
+    <form id="FORM-ACCESS" class="ACCESS-FORM">
+      <label class="ACCESS-LBL">Code d'accès
+        <input type="password" id="INP-ACCESS" autocomplete="off" required placeholder="Code bureau ou consultation">
+      </label>
+      <button type="submit" class="BTN BTN-PRI ACCESS-BTN">Entrer</button>
+    </form>
+    <p class="ACCESS-HINT">Bureau : saisie complète · Échelon : consultation et recherche par nom</p>
+  </div>
+</div>
+
+<script src="logo-b64.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="app.js?v=45"></script>
+</body>
+</html>
